@@ -20,8 +20,8 @@ class UserCollection {
    */
   static async addOne(username: string, password: string): Promise<HydratedDocument<User>> {
     const dateJoined = new Date();
-
-    const user = new UserModel({username, password, dateJoined});
+    const banned = false;
+    const user = new UserModel({username, password, dateJoined, banned});
     await user.save(); // Saves user to MongoDB
     return user;
   }
@@ -77,6 +77,19 @@ class UserCollection {
       user.username = userDetails.username;
     }
 
+    await user.save();
+    return user;
+  }
+
+  /**
+   * Update user's information
+   *
+   * @param {string} userId - The userId of the user to update
+   * @return {Promise<HydratedDocument<User>>} - The updated user
+   */
+   static async updateBan(userId: Types.ObjectId | string): Promise<HydratedDocument<User>> {
+    const user = await UserModel.findOne({_id: userId});
+    user.banned = !user.banned;
     await user.save();
     return user;
   }

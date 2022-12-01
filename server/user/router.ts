@@ -2,6 +2,7 @@ import type {Request, Response} from 'express';
 import express from 'express';
 import FreetCollection from '../freet/collection';
 import UserCollection from './collection';
+import UserModel from './model';
 import * as userValidator from '../user/middleware';
 import * as util from './util';
 
@@ -114,6 +115,29 @@ router.post(
     });
   }
 );
+/**
+ * Update a user's ban status.
+ *
+ * @name PATCH /api/users/ban
+ *
+ * @param {string} username - The user's new username
+ * @return {UserResponse} - The updated user
+ * @throws {400} - If user does not exist
+ */
+ router.patch(
+  '/ban',
+  async (req: Request, res: Response) => {
+    const userId = (req.body.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
+    const user = await UserModel.findOne({ userId })
+    if (user) {
+      const ban = await UserCollection.updateBan(userId);
+      res.status(200).json({
+        message: 'Your profile was updated successfully.',
+        user: util.constructUserResponse(user)
+      });
+    }
+  }
+ );
 
 /**
  * Update a user's profile.
